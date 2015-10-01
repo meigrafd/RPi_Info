@@ -1,0 +1,77 @@
+<!-- copyright 31.07.2015 by meigrafd -->
+<html>
+ <head>
+  <meta http-equiv="X-UA-Compatible" content="IE=7" />
+  <style>
+   body { width: 210px; height: 170px; margin: 4px; padding: 0px; }
+  </style>
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="SettingsManager.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function(){
+
+		SettingsManager.loadFile();
+		var settingsIP = SettingsManager.getValue('default', 'IP');
+		var settingsPort = SettingsManager.getValue('default', 'Port');
+		var settingsWidth = SettingsManager.getValue('default', 'Width');
+		var settingsHeight = SettingsManager.getValue('default', 'Height');
+		var settingsInterval = SettingsManager.getValue('default', 'Interval');
+
+		if (settingsIP) {
+			$('#settingsIP').val(settingsIP);
+		}
+		if (settingsPort) {
+			$('#settingsPort').val(settingsPort);
+		}
+		if(settingsWidth) {
+			$('#settingsWidth').val(settingsWidth);
+		}
+		if(settingsHeight) {
+			$('#settingsHeight').val(settingsHeight);
+		}
+		if(settingsInterval) {
+			$('#settingsInterval').val(settingsInterval);
+		}
+
+	});
+
+	function settingsClosing(event) {
+		if(event.closeAction == event.Action.commit) {
+			var settingsIP = $('#settingsIP').val();
+			var settingsPort = $('#settingsPort').val();
+			var settingsWidth = $('#settingsWidth').val();
+			var settingsHeight = $('#settingsHeight').val();
+			var settingsInterval = parseInt($('#settingsInterval').val());
+			SettingsManager.setValue('default', 'IP', settingsIP);
+			SettingsManager.setValue('default', 'Port', settingsPort);
+			SettingsManager.setValue('default', 'Width', settingsWidth);
+			SettingsManager.setValue('default', 'Height', settingsHeight);
+			SettingsManager.setValue('default', 'Interval', settingsInterval);
+			SettingsManager.saveFile();
+		}
+    // Allow the Settings dialog to close.
+		event.cancel = false;
+	}
+
+	System.Gadget.onSettingsClosing = settingsClosing;
+  </script>
+ </head>
+<body>
+
+<div id="gadgetContent">
+<p>
+	<label for="variableLink">RaspberryPi IP : Port</label><br />
+	<input type="text" name="settingsIP" id="settingsIP" size="15" value="" /> : <input type="text" name="settingsPort" id="settingsPort" size="4" value="" />
+</p>
+<p>
+	<label for="settingsInterval">Refresh Interval (in seconds)</label><br />
+	<input type="text" name="settingsInterval" id="settingsInterval" size="4" value="" />
+</p>
+<p>
+	<label for="settingsWidth">Width / Height</label><br />
+	<input type="text" name="settingsWidth" id="settingsWidth" size="4" value="" /> / <input type="text" name="settingsHeight" id="settingsHeight" size="4" value="" />
+</p>
+</div>
+
+</body>
+</html>

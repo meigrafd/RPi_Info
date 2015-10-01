@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<gadget>
+    <name>RPi Info</name>
+    <namespace>RPi Info</namespace>
+    <version>1.1</version>
+    <author name="meigrafd">
+        <info url="http://www.forum-raspberrypi.de" />
+    </author>
+    <copyright>© Copyright 2015</copyright>
+	<icons>
+		<icon height="48" width="48" src="icon.ico" />
+	</icons>
+    <description>RaspberryPi System Infos</description>
+    <hosts>
+        <host name="sidebar">
+            <base type="HTML" apiVersion="1.0.0" src="RPi.html" />
+            <permissions>Full</permissions>
+            <platform minPlatformVersion="1.0" />
+        </host>
+    </hosts>
+</gadget>

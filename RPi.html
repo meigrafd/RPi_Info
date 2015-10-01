@@ -1,0 +1,182 @@
+<!-- copyright 31.07.2015 by meigrafd -->
+<html>
+ <head>
+ 	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+  <meta http-equiv="Cache-Control" content="no-cache" />
+  <title>RaspberryPi System Infos</title>
+  <style type="text/css">
+    body {
+      width: 235px;
+      height: 210px;
+      margin: 0;
+      font-family: "Franklin Gothic Medium", calibri, corbel, arial;
+      font-size: 13px;
+      background-image: url("bg.jpg");
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: #000000;
+    }
+    div.transbox {
+      background-color: #ffffff;
+      opacity: 0.8;
+      filter: alpha(opacity=80); /* For IE8 and earlier */
+    }
+    div.transbox p {
+      margin: 5%;
+      font-weight: bold;
+      color: #000000;
+    }
+  </style>
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="SettingsManager.js"></script>
+  <script type="text/javascript">
+
+	// set defaults
+	var defaultIP = '192.168.0.11';
+	var defaultPort = 7070;
+	var defaultWidth = 235;
+	var defaultHeight = 210;
+	var defaultInterval = 10;
+	var variableLink = defaultIP+':'+defaultPort;
+
+	jQuery.support.cors = true;
+	<!-- Show settings check mark-->
+	System.Gadget.settingsUI = "Settings.html";
+	System.Gadget.onSettingsClosed = settingsClosed;
+	var intervalID = false;
+
+	function loadSettings() {
+		SettingsManager.loadFile();
+		var settingsIP = SettingsManager.getValue('default', 'IP');
+		var settingsPort = SettingsManager.getValue('default', 'Port');
+		var settingsWidth = SettingsManager.getValue('default', 'Width');
+		var settingsHeight = SettingsManager.getValue('default', 'Height');
+		var settingsInterval = SettingsManager.getValue('default', 'Interval');
+
+		if (settingsIP) {
+			settingsIP = settingsIP;
+		} else {
+			SettingsManager.setValue('default', 'IP', defaultIP);
+			settingsIP = defaultIP;
+		}
+		if (settingsPort) {
+			settingsPort = settingsPort;
+		} else {
+			SettingsManager.setValue('default', 'Port', defaultPort);
+			settingsPort = defaultPort;
+		}
+		if (settingsWidth) {
+			width = settingsWidth;
+		} else {
+			SettingsManager.setValue('default', 'Width', defaultWidth);
+			width = defaultWidth;
+		}
+		if (settingsHeight) {
+			height = settingsHeight;
+		} else {
+			SettingsManager.setValue('default', 'Height', defaultHeight);
+			height = defaultHeight;
+		}
+		if (settingsInterval > 0) {
+			requestSpeed = settingsInterval;
+		} else {
+			SettingsManager.setValue('default', 'Interval', defaultInterval);
+			requestSpeed = defaultInterval;
+		}
+		SettingsManager.saveFile();
+		variableLink = settingsIP+":"+settingsPort;
+	}
+
+	function settingsClosed(event) {
+		if (event.closeAction == event.Action.commit) {
+			initGadget();
+			getInfos();
+		}
+	}
+
+	function cpuTemp() {
+	  $.ajax({
+	    url: 'http://'+variableLink+'/cputemp',
+	    dataType: 'text',
+	    success: function(result){ 
+	    	$("#cputemp").text( String(result) );
+	    }
+	  });
+	}
+	function cpuLoad() {
+	  $.ajax({
+	    url: 'http://'+variableLink+'/cpuload',
+	    dataType: 'text',
+	    success: function(result){
+	    	$("#cpuload").text( String(result) );
+	    }
+	  });
+	}
+	function sysUptime() {
+	  $.ajax({
+	    url: 'http://'+variableLink+'/uptime',
+	    dataType: 'text',
+	    success: function(result){
+	    	$("#uptime").text( String(result) );
+	    }
+	  });
+	}
+	function sysRam() {
+	  $.ajax({
+	    url: 'http://'+variableLink+'/ram',
+	    dataType: 'text',
+	    success: function(result){
+	    	$("#ram").text( String(result) );
+	    }
+	  });
+	}
+	
+	function getInfos() {
+		try {
+			cpuLoad();
+			cpuTemp();
+			sysUptime();
+			sysRam();
+		}
+		catch(e) {
+			document.write('Error occurred in getInfos function: '+e);
+		}
+	}
+
+	function initGadget() {
+		loadSettings();
+		$('body').css('width', width);
+		$('body').css('height', height);
+    // Disable caching of AJAX responses - Stop IE reusing cache data for the same requests.
+    // It works by appending "_={timestamp}" to the GET parameters.
+    $.ajaxSetup({
+        cache: false
+    });
+    if (intervalID) {
+    	clearInterval(intervalID);
+    }
+    //getInfos();
+		intervalID = setInterval(getInfos, requestSpeed * 1000);
+	}
+
+  </script>
+ </head>
+ <body onload="initGadget();" scroll="no">
+ 	<center>
+  <br/>
+  <br/>
+  <div class="transbox">
+ 	 <p>
+ 	 	<table>
+ 	 	 <tr> <td>&nbsp; Uptime:</td> <td><span id="uptime">__:__:__</span></td> </tr>
+     <tr> <td>&nbsp; RAM:</td> <td><span id='ram'></span> MB</td> </tr>
+ 	   <tr> <td>&nbsp; CPU Temp:</td> <td><span id="cputemp"></span> &deg;C</td> </tr>
+ 	   <tr> <td>&nbsp; CPU Load:</td> <td><span id="cpuload"></span></td> </tr>
+ 	  </table>
+ 	 </p>
+ 	 <br/>
+ 	 <input type="button" value="update" onclick="getInfos();" />
+ 	</div>
+ 	</center>
+ </body>
+</html>
